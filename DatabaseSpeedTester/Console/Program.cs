@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatabaseConnection;
+using System;
 using System.Net;
 
 namespace DdosConsole
@@ -10,8 +11,9 @@ namespace DdosConsole
         public static string username;
         public static string password;
         public static string database;
+        public static DbContext dbContext;
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Welcome to the Ddos Console");
             Setup();
@@ -21,6 +23,31 @@ namespace DdosConsole
             Console.WriteLine("Port: " + port);
             Console.WriteLine("Username: " + username);
             Console.WriteLine("Database: " + database);
+            await DatabaseConnectAsync();
+        }
+
+        static async Task DatabaseConnectAsync()
+        {
+            string connectionString = $"Server={ip},{port};Database={database};User Id={username};Password={password};TrustServerCertificate=true;";
+            dbContext = new DbContext(connectionString);
+            bool succes = dbContext.TestConnection();
+            if (succes)
+            {
+                Console.WriteLine("Connection to the database was successful");
+                Console.WriteLine("Please write the amount of users you want to attack");
+                int users = int.Parse(Console.ReadLine());
+                Console.WriteLine("Please write the amount of times you want to attack");
+                int times = int.Parse(Console.ReadLine());
+                DDOS ddos = new DDOS(dbContext);
+                await ddos.DDOSAttack(users, times);
+            }
+            else
+            {
+                Console.WriteLine("Connection to the database failed");
+                Console.WriteLine("Please check the connection settings and try again");
+                Setup();
+                await DatabaseConnectAsync();
+            }
         }
 
         static void Setup()
