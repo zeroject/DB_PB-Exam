@@ -40,6 +40,62 @@ namespace DdosConsole
                 int times = int.Parse(Console.ReadLine());
                 DDOS ddos = new DDOS(dbContext);
                 await ddos.DDOSAttack(users, times);
+                Dictionary<string, float> totalTimes = ddos.GetTimes();
+                Dictionary<string, float> ReadTimes = new Dictionary<string, float>();
+                Dictionary<string, float> WriteTimes = new Dictionary<string, float>();
+                Dictionary<string, float> UpdateTimes = new Dictionary<string, float>();
+                Dictionary<string, float> DeleteTimes = new Dictionary<string, float>();
+                foreach (var time in totalTimes)
+                {
+                    if (time.Key.Contains("Read"))
+                    {
+                        ReadTimes.Add(time.Key, time.Value);
+                    }
+                    else if (time.Key.Contains("Write"))
+                    {
+                        WriteTimes.Add(time.Key, time.Value);
+                    }
+                    else if (time.Key.Contains("Update"))
+                    {
+                        UpdateTimes.Add(time.Key, time.Value);
+                    }
+                    else if (time.Key.Contains("Delete"))
+                    {
+                        DeleteTimes.Add(time.Key, time.Value);
+                    }
+                }
+                float averageRead = 0;
+                float averageWrite = 0;
+                float averageUpdate = 0;
+                float averageDelete = 0;
+                foreach (var time in ReadTimes)
+                {
+                    averageRead += time.Value;
+                }
+                foreach (var time in WriteTimes)
+                {
+                    averageWrite += time.Value;
+                }
+                foreach (var time in UpdateTimes)
+                {
+                    averageUpdate += time.Value;
+                }
+                foreach (var time in DeleteTimes)
+                {
+                    averageDelete += time.Value;
+                }
+                Console.WriteLine("Total Read Time: " + averageRead);
+                Console.WriteLine("Total Write Time: " + averageWrite);
+                Console.WriteLine("Total Update Time: " + averageUpdate);
+                Console.WriteLine("Total Delete Time: " + averageDelete);
+                averageRead = averageRead / ReadTimes.Count;
+                averageWrite = averageWrite / WriteTimes.Count;
+                averageUpdate = averageUpdate / UpdateTimes.Count;
+                averageDelete = averageDelete / DeleteTimes.Count;
+                Console.WriteLine("Average Read Time: " + averageRead);
+                Console.WriteLine("Average Write Time: " + averageWrite);
+                Console.WriteLine("Average Update Time: " + averageUpdate);
+                Console.WriteLine("Average Delete Time: " + averageDelete);
             }
             else
             {

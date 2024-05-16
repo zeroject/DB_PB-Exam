@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -12,6 +13,7 @@ namespace DatabaseConnection
     {
         private readonly DbContext _dbContext;
         private Random _random;
+        public Dictionary<string, float> times = new Dictionary<string, float>();
 
         public DDOS(DbContext dbContext)
         {
@@ -19,20 +21,25 @@ namespace DatabaseConnection
             _random = new Random();
         }
 
+        public Dictionary<string, float> GetTimes()
+        {
+            return times;
+        }
+
         public async Task DDOSAttack(int Users, int times)
         {
             var tasks = new List<Task>();
 
-            using (var connection = new SqlConnection(_dbContext._connectionString))
+            for (int i = 0; i < Users; i++)
             {
-                await connection.OpenAsync();
-                for (int i = 0; i < Users; i++)
+                using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
+                    await connection.OpenAsync();
                     tasks.Add(Task.Run(() => SimulateUser(times, i, connection)));
                 }
-
-                await Task.WhenAll(tasks);
             }
+
+            await Task.WhenAll(tasks);
 
             Console.WriteLine("DDOS attack completed");
         }
@@ -58,7 +65,6 @@ namespace DatabaseConnection
                         await UpdateDataAsync(connection);
                         break;
                 }
-                Console.WriteLine($"User {User} has completed operation {i + 1}/{operationsCount}");
             }
         }
 
@@ -70,7 +76,11 @@ namespace DatabaseConnection
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
                     await command.ExecuteReaderAsync();
+                    stopwatch.Stop();
+                    times.Add("Read" + _random.Next(), stopwatch.ElapsedMilliseconds);
                 }
             }
             catch (SqlException e)
@@ -88,14 +98,16 @@ namespace DatabaseConnection
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    // Set parameter values
                     command.Parameters.AddWithValue("@FirstName", "DDOS");
                     command.Parameters.AddWithValue("@LastName", "Trolololol");
                     command.Parameters.AddWithValue("@Email", "hahaha@ddos.com");
                     command.Parameters.AddWithValue("@Password", "somethign!w31");
 
-                    // Execute the SQL command
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    stopwatch.Stop();
+                    times.Add("Write" + _random.Next(), stopwatch.ElapsedMilliseconds);
                 }
             }
             catch (SqlException e)
@@ -113,11 +125,13 @@ namespace DatabaseConnection
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    // Set parameter values
                     command.Parameters.AddWithValue("@FirstName", "DDOS");
 
-                    // Execute the SQL command
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    stopwatch.Stop();
+                    times.Add("Delete" + _random.Next(), stopwatch.ElapsedMilliseconds);
                 }
             }
             catch (SqlException e)
@@ -135,12 +149,14 @@ namespace DatabaseConnection
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    // Set parameter values
                     command.Parameters.AddWithValue("@LastName", "hahahahahahaha");
                     command.Parameters.AddWithValue("@FirstName", "DDOS");
 
-                    // Execute the SQL command
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    stopwatch.Stop();
+                    times.Add("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
                 }
             }
             catch (SqlException e)
