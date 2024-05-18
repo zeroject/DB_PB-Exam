@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,11 +31,7 @@ namespace DatabaseConnection
 
             for (int i = 0; i < Users; i++)
             {
-                using (var connection = new SqlConnection(_dbContext._connectionString))
-                {
-                    await connection.OpenAsync();
-                    tasks.Add(Task.Run(() => SimulateUser(times, i, connection)));
-                }
+                tasks.Add(Task.Run(() => SimulateUser(times, i)));
             }
 
             await Task.WhenAll(tasks);
@@ -44,7 +39,7 @@ namespace DatabaseConnection
             Console.WriteLine("DDOS attack completed");
         }
 
-        private async Task SimulateUser(int operationsCount, int User, SqlConnection connection)
+        private async Task SimulateUser(int operationsCount, int User)
         {
             for (int i = 0; i < operationsCount; i++)
             {
@@ -53,34 +48,38 @@ namespace DatabaseConnection
                 switch (operation)
                 {
                     case 0:
-                        await ReadData(connection);
+                        await ReadData();
                         break;
                     case 1:
-                        await WriteDataAsync(connection);
+                        await WriteDataAsync();
                         break;
                     case 2:
-                        await DeleteDataAsync(connection);
+                        await DeleteDataAsync();
                         break;
                     case 3:
-                        await UpdateDataAsync(connection);
+                        await UpdateDataAsync();
                         break;
                 }
             }
         }
 
-        private async Task ReadData(SqlConnection connection)
+        private async Task ReadData()
         {
             try
             {
-                string sql = "SELECT * FROM Users";
-
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
-                    Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    await command.ExecuteReaderAsync();
-                    stopwatch.Stop();
-                    times.Add("Read" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                    await connection.OpenAsync();
+                    string sql = "SELECT * FROM Customers";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        Stopwatch stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        await command.ExecuteReaderAsync();
+                        stopwatch.Stop();
+                        times.Add("Read" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                    }
                 }
             }
             catch (SqlException e)
@@ -90,24 +89,28 @@ namespace DatabaseConnection
             }
         }
 
-        private async Task WriteDataAsync(SqlConnection connection)
+        private async Task WriteDataAsync()
         {
             try
             {
-                string sql = "INSERT INTO Users (FirstName, LastName, Email, Password) VALUES (@FirstName, @LastName, @Email, @Password)";
-
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
-                    command.Parameters.AddWithValue("@FirstName", "DDOS");
-                    command.Parameters.AddWithValue("@LastName", "Trolololol");
-                    command.Parameters.AddWithValue("@Email", "hahaha@ddos.com");
-                    command.Parameters.AddWithValue("@Password", "somethign!w31");
+                    await connection.OpenAsync();
+                    string sql = "INSERT INTO Customers (FName, LName, City, Street) VALUES (@FName, @LName, @City, @Street)";
 
-                    Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    int rowsAffected = await command.ExecuteNonQueryAsync();
-                    stopwatch.Stop();
-                    times.Add("Write" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@FName", "DDOS");
+                        command.Parameters.AddWithValue("@LName", "Trolololol");
+                        command.Parameters.AddWithValue("@City", "hahaha@ddos.com");
+                        command.Parameters.AddWithValue("@Street", "somethign!w31");
+
+                        Stopwatch stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        stopwatch.Stop();
+                        times.Add("Write" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                    }
                 }
             }
             catch (SqlException e)
@@ -117,21 +120,25 @@ namespace DatabaseConnection
             }
         }
 
-        private async Task DeleteDataAsync(SqlConnection connection)
+        private async Task DeleteDataAsync()
         {
             try
             {
-                string sql = "DELETE FROM Users WHERE FirstName = @FirstName";
-
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
-                    command.Parameters.AddWithValue("@FirstName", "DDOS");
+                    await connection.OpenAsync();
+                    string sql = "DELETE FROM Customers WHERE FName = @FName";
 
-                    Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    int rowsAffected = await command.ExecuteNonQueryAsync();
-                    stopwatch.Stop();
-                    times.Add("Delete" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@FName", "DDOS");
+
+                        Stopwatch stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        stopwatch.Stop();
+                        times.Add("Delete" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                    }
                 }
             }
             catch (SqlException e)
@@ -141,22 +148,26 @@ namespace DatabaseConnection
             }
         }
 
-        private async Task UpdateDataAsync(SqlConnection connection)
+        private async Task UpdateDataAsync()
         {
             try
             {
-                string sql = "UPDATE Users SET LastName = @LastName WHERE FirstName = @FirstName";
-
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
-                    command.Parameters.AddWithValue("@LastName", "hahahahahahaha");
-                    command.Parameters.AddWithValue("@FirstName", "DDOS");
+                    await connection.OpenAsync();
+                    string sql = "UPDATE Customers SET LName = @LName WHERE FName = @FName";
 
-                    Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    int rowsAffected = await command.ExecuteNonQueryAsync();
-                    stopwatch.Stop();
-                    times.Add("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@LName", "hahahahahahaha");
+                        command.Parameters.AddWithValue("@FName", "DDOS");
+
+                        Stopwatch stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        int rowsAffected = await command.ExecuteNonQueryAsync();
+                        stopwatch.Stop();
+                        times.Add("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                    }
                 }
             }
             catch (SqlException e)

@@ -1,6 +1,16 @@
 ﻿using DatabaseConnection;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace DdosConsole
 {
@@ -24,14 +34,23 @@ namespace DdosConsole
             Console.WriteLine("Username: " + username);
             Console.WriteLine("Database: " + database);
             await DatabaseConnectAsync();
+            try
+            {
+                Process.Start(new ProcessStartInfo("cmd", $"/c start http://localhost:5000") { CreateNoWindow = true });
+            } catch (Exception)
+            {
+                Console.WriteLine("The browser could not be opened");
+            }
+            DataShower.Program.Main(args);
         }
 
         static async Task DatabaseConnectAsync()
         {
-            string connectionString = $"Server={ip},{port};Database={database};User Id={username};Password={password};TrustServerCertificate=true;";
+            //$"Server={ip},{port};Database={database};User Id={username};Password={password};TrustServerCertificate=true;"
+            string connectionString = $"Server=5.206.195.95,1433;Database=DDOSVictim;User Id=sa;Password=SuperSecret7!;TrustServerCertificate=true;";
             dbContext = new DbContext(connectionString);
-            bool succes = dbContext.TestConnection();
-            if (succes)
+            bool success = dbContext.TestConnection();
+            if (success)
             {
                 Console.WriteLine("Connection to the database was successful");
                 Console.WriteLine("Please write the amount of users you want to attack");
@@ -41,61 +60,15 @@ namespace DdosConsole
                 DDOS ddos = new DDOS(dbContext);
                 await ddos.DDOSAttack(users, times);
                 Dictionary<string, float> totalTimes = ddos.GetTimes();
-                Dictionary<string, float> ReadTimes = new Dictionary<string, float>();
-                Dictionary<string, float> WriteTimes = new Dictionary<string, float>();
-                Dictionary<string, float> UpdateTimes = new Dictionary<string, float>();
-                Dictionary<string, float> DeleteTimes = new Dictionary<string, float>();
-                foreach (var time in totalTimes)
+
+                // Serialize data to JSON
+                var jsonData = new
                 {
-                    if (time.Key.Contains("Read"))
-                    {
-                        ReadTimes.Add(time.Key, time.Value);
-                    }
-                    else if (time.Key.Contains("Write"))
-                    {
-                        WriteTimes.Add(time.Key, time.Value);
-                    }
-                    else if (time.Key.Contains("Update"))
-                    {
-                        UpdateTimes.Add(time.Key, time.Value);
-                    }
-                    else if (time.Key.Contains("Delete"))
-                    {
-                        DeleteTimes.Add(time.Key, time.Value);
-                    }
-                }
-                float averageRead = 0;
-                float averageWrite = 0;
-                float averageUpdate = 0;
-                float averageDelete = 0;
-                foreach (var time in ReadTimes)
-                {
-                    averageRead += time.Value;
-                }
-                foreach (var time in WriteTimes)
-                {
-                    averageWrite += time.Value;
-                }
-                foreach (var time in UpdateTimes)
-                {
-                    averageUpdate += time.Value;
-                }
-                foreach (var time in DeleteTimes)
-                {
-                    averageDelete += time.Value;
-                }
-                Console.WriteLine("Total Read Time: " + averageRead);
-                Console.WriteLine("Total Write Time: " + averageWrite);
-                Console.WriteLine("Total Update Time: " + averageUpdate);
-                Console.WriteLine("Total Delete Time: " + averageDelete);
-                averageRead = averageRead / ReadTimes.Count;
-                averageWrite = averageWrite / WriteTimes.Count;
-                averageUpdate = averageUpdate / UpdateTimes.Count;
-                averageDelete = averageDelete / DeleteTimes.Count;
-                Console.WriteLine("Average Read Time: " + averageRead);
-                Console.WriteLine("Average Write Time: " + averageWrite);
-                Console.WriteLine("Average Update Time: " + averageUpdate);
-                Console.WriteLine("Average Delete Time: " + averageDelete);
+                    TotalTimes = totalTimes
+                };
+                string jsonString = JsonSerializer.Serialize(jsonData);
+                string tempFile = Path.Combine("C:\\Users\\caspe\\Downloads", "data.json");
+                await File.WriteAllTextAsync(tempFile, jsonString);
             }
             else
             {
@@ -108,23 +81,25 @@ namespace DdosConsole
 
         static void Setup()
         {
-            Console.WriteLine("Please write the IP Adress for the database");
+            Console.WriteLine("Please write the IP Address for the database");
             string ipInput = Console.ReadLine();
             try
             {
                 ip = IPAddress.Parse(ipInput);
-            } catch (Exception e)
+            }
+            catch (Exception)
             {
-                Console.WriteLine("The IP Adress is not valid");
+                Console.WriteLine("The IP Address is not valid");
                 Setup();
             }
-            Console.WriteLine("Please write the port for the database if empty standart port 1433 will be used");
+            Console.WriteLine("Please write the port for the database if empty standard port 1433 will be used");
             string portInput = Console.ReadLine();
             port = 0;
             try
             {
                 port = int.Parse(portInput);
-            } catch (Exception e)
+            }
+            catch (Exception)
             {
                 if (portInput != "")
                 {
@@ -134,7 +109,7 @@ namespace DdosConsole
             }
             if (port == 0)
             {
-                Console.WriteLine("Standart port 1433 will be used");
+                Console.WriteLine("Standard port 1433 will be used");
                 port = 1433;
             }
             Console.WriteLine("Please write the username for the database");
@@ -169,5 +144,12 @@ namespace DdosConsole
 
             return password;
         }
+    }
+
+    public class DataItem
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
     }
 }
