@@ -43,7 +43,7 @@ namespace DatabaseConnection
         {
             for (int i = 0; i < operationsCount; i++)
             {
-                var operation = _random.Next(4); // 0: read, 1: write, 2: update, 3: delete
+                var operation = _random.Next(5);
 
                 switch (operation)
                 {
@@ -59,6 +59,9 @@ namespace DatabaseConnection
                     case 3:
                         await UpdateDataAsync();
                         break;
+                    case 4:
+                        await JoinTabels();
+                        break;
                 }
             }
         }
@@ -67,6 +70,8 @@ namespace DatabaseConnection
         {
             try
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
                 using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
                     await connection.OpenAsync();
@@ -74,13 +79,11 @@ namespace DatabaseConnection
 
                     using (SqlCommand command = new SqlCommand(sql, connection))
                     {
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
                         await command.ExecuteReaderAsync();
-                        stopwatch.Stop();
-                        times.Add("Read" + _random.Next(), stopwatch.ElapsedMilliseconds);
                     }
                 }
+                stopwatch.Stop();
+                times.Add("Read" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {
@@ -93,6 +96,8 @@ namespace DatabaseConnection
         {
             try
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
                 using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
                     await connection.OpenAsync();
@@ -105,13 +110,11 @@ namespace DatabaseConnection
                         command.Parameters.AddWithValue("@City", "hahaha@ddos.com");
                         command.Parameters.AddWithValue("@Street", "somethign!w31");
 
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
                         int rowsAffected = await command.ExecuteNonQueryAsync();
-                        stopwatch.Stop();
-                        times.Add("Write" + _random.Next(), stopwatch.ElapsedMilliseconds);
                     }
                 }
+                stopwatch.Stop();
+                times.Add("Write" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {
@@ -124,6 +127,8 @@ namespace DatabaseConnection
         {
             try
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
                 using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
                     await connection.OpenAsync();
@@ -133,13 +138,11 @@ namespace DatabaseConnection
                     {
                         command.Parameters.AddWithValue("@FName", "DDOS");
 
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
                         int rowsAffected = await command.ExecuteNonQueryAsync();
-                        stopwatch.Stop();
-                        times.Add("Delete" + _random.Next(), stopwatch.ElapsedMilliseconds);
                     }
                 }
+                stopwatch.Stop();
+                times.Add("Delete" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {
@@ -152,6 +155,8 @@ namespace DatabaseConnection
         {
             try
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
                 using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
                     await connection.OpenAsync();
@@ -162,17 +167,41 @@ namespace DatabaseConnection
                         command.Parameters.AddWithValue("@LName", "hahahahahahaha");
                         command.Parameters.AddWithValue("@FName", "DDOS");
 
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
                         int rowsAffected = await command.ExecuteNonQueryAsync();
-                        stopwatch.Stop();
-                        times.Add("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
                     }
                 }
+                stopwatch.Stop();
+                times.Add("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {
                 Console.WriteLine("Failed to update data in database");
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private async Task JoinTabels()
+        {
+            try
+            {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                using (var connection = new SqlConnection(_dbContext._connectionString))
+                {
+                    await connection.OpenAsync();
+                    string sql = "SELECT * FROM Customers INNER JOIN Orders ON Customers.CustomerID = Orders.CustomerID";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        await command.ExecuteReaderAsync();
+                    }
+                }
+                stopwatch.Stop();
+                times.Add("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
+            }
+            catch (SqlException e)
+            {
+                Console.WriteLine("Failed to Join data in database");
                 Console.WriteLine(e.Message);
             }
         }
