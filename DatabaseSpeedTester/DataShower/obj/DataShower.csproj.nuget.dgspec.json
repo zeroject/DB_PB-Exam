@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\DataShower.csproj": {}
+    "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\DataShower.csproj": {}
   },
   "projects": {
-    "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\DataShower.csproj": {
+    "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\DataShower.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\DataShower.csproj",
+        "projectUniqueName": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\DataShower.csproj",
         "projectName": "DataShower",
-        "projectPath": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\DataShower.csproj",
-        "packagesPath": "C:\\Users\\caspe\\.nuget\\packages\\",
-        "outputPath": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\",
+        "projectPath": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\DataShower.csproj",
+        "packagesPath": "C:\\Users\\Tiger\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\caspe\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Tiger\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -63,7 +63,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

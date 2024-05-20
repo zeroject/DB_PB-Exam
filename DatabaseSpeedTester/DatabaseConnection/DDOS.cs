@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace DatabaseConnection
     {
         private readonly DbContext _dbContext;
         private Random _random;
-        public Dictionary<string, float> times = new Dictionary<string, float>();
+        public ConcurrentDictionary<string, float> times = new ConcurrentDictionary<string, float>();
 
         public DDOS(DbContext dbContext)
         {
@@ -20,7 +21,7 @@ namespace DatabaseConnection
             _random = new Random();
         }
 
-        public Dictionary<string, float> GetTimes()
+        public ConcurrentDictionary<string, float> GetTimes()
         {
             return times;
         }
@@ -31,7 +32,8 @@ namespace DatabaseConnection
 
             for (int i = 0; i < Users; i++)
             {
-                tasks.Add(Task.Run(() => SimulateUser(times, i)));
+                int userId = i; // Capture the loop variable
+                tasks.Add(RunOnThreadAsync(() => SimulateUser(times, userId)));
             }
 
             await Task.WhenAll(tasks);
@@ -39,30 +41,36 @@ namespace DatabaseConnection
             Console.WriteLine("DDOS attack completed");
         }
 
-        private async Task SimulateUser(int operationsCount, int User)
+        private async Task RunOnThreadAsync(Action action)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    action();
+                    tcs.SetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            thread.Start();
+            await tcs.Task;
+        }
+
+        private void SimulateUser(int operationsCount, int User)
         {
             for (int i = 0; i < operationsCount; i++)
             {
-                var operation = _random.Next(5);
-
-                switch (operation)
-                {
-                    case 0:
-                        await ReadData();
-                        break;
-                    case 1:
-                        await WriteDataAsync();
-                        break;
-                    case 2:
-                        await DeleteDataAsync();
-                        break;
-                    case 3:
-                        await UpdateDataAsync();
-                        break;
-                    case 4:
-                        await JoinTabels();
-                        break;
-                }
+                ReadData();
+                WriteDataAsync();
+                UpdateDataAsync();
+                DeleteDataAsync();
+                JoinTabels();
             }
         }
 
@@ -83,7 +91,7 @@ namespace DatabaseConnection
                     }
                 }
                 stopwatch.Stop();
-                times.Add("Read" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                times.TryAdd("Read" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {
@@ -114,7 +122,7 @@ namespace DatabaseConnection
                     }
                 }
                 stopwatch.Stop();
-                times.Add("Write" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                times.TryAdd("Write" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {
@@ -142,7 +150,7 @@ namespace DatabaseConnection
                     }
                 }
                 stopwatch.Stop();
-                times.Add("Delete" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                times.TryAdd("Delete" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {
@@ -171,7 +179,7 @@ namespace DatabaseConnection
                     }
                 }
                 stopwatch.Stop();
-                times.Add("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                times.TryAdd("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {
@@ -189,7 +197,7 @@ namespace DatabaseConnection
                 using (var connection = new SqlConnection(_dbContext._connectionString))
                 {
                     await connection.OpenAsync();
-                    string sql = "SELECT * FROM Customers INNER JOIN Orders ON Customers.CustomerID = Orders.CustomerID";
+                    string sql = "SELECT * FROM Customers INNER JOIN Orders ON Customers.Id = Orders.CustomerId";
 
                     using (SqlCommand command = new SqlCommand(sql, connection))
                     {
@@ -197,7 +205,7 @@ namespace DatabaseConnection
                     }
                 }
                 stopwatch.Stop();
-                times.Add("Update" + _random.Next(), stopwatch.ElapsedMilliseconds);
+                times.TryAdd("Join" + _random.Next(), stopwatch.ElapsedMilliseconds);
             }
             catch (SqlException e)
             {

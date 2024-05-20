@@ -12,8 +12,8 @@ namespace DatabaseConnection
 
         public bool TestConnection()
         {
-            Console.WriteLine("Testing connection to database");
-            Console.WriteLine($"Connection string: {_connectionString}");
+            //Console.WriteLine("Testing connection to database");
+            //Console.WriteLine($"Connection string: {_connectionString}");
             using (var connection = new SqlConnection(_connectionString))
             {
                 try

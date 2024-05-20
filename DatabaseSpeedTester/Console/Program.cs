@@ -4,11 +4,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Client;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -47,7 +50,7 @@ namespace DdosConsole
         static async Task DatabaseConnectAsync()
         {
             //$"Server={ip},{port};Database={database};User Id={username};Password={password};TrustServerCertificate=true;"
-            string connectionString = $"Server=5.206.195.95,1433;Database=DDOSVictim;User Id=sa;Password=SuperSecret7!;TrustServerCertificate=true;";
+            string connectionString = $"Server={ip},{port};Database={database};User Id={username};Password={password};TrustServerCertificate=true;";
             dbContext = new DbContext(connectionString);
             bool success = dbContext.TestConnection();
             if (success)
@@ -59,15 +62,61 @@ namespace DdosConsole
                 int times = int.Parse(Console.ReadLine());
                 DDOS ddos = new DDOS(dbContext);
                 await ddos.DDOSAttack(users, times);
-                Dictionary<string, float> totalTimes = ddos.GetTimes();
+                ConcurrentDictionary<string, float> concurrentDic = ddos.GetTimes();
+                Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
+                float averageRead = 0;
+                float averageWrite = 0;
+                float averageDelete = 0;
+                float averageUpdate = 0;
+                float averageJoin = 0;
+                int numberOfReads = 0;
+                int numberOfWrites = 0;
+                int numberOfDeletes = 0;
+                int numberOfUpdates = 0;
+                int numberOfJoins = 0;
+
+                foreach (var key in totalTimes.Keys)
+                {
+                    if (key.Contains("Read")) 
+                    {
+                        averageRead += totalTimes[key];
+                        numberOfReads++;
+                    }
+                    if (key.Contains("Write"))
+                    {
+                        averageWrite += totalTimes[key];
+                        numberOfWrites++;
+                    }
+                    if (key.Contains("Delete"))
+                    {
+                        averageDelete += totalTimes[key];
+                        numberOfDeletes++;
+                    }
+                    if (key.Contains("Update"))
+                    {
+                        averageUpdate += totalTimes[key];
+                        numberOfUpdates++;
+                    }
+                    if (key.Contains("Join"))
+                    {
+                        averageJoin += totalTimes[key];
+                        numberOfJoins++;
+                    }
+                }
 
                 // Serialize data to JSON
                 var jsonData = new
                 {
-                    TotalTimes = totalTimes
+                    TotalTimes = totalTimes,
+                    AverageRead = averageRead / numberOfReads,
+                    AverageWrite = averageWrite / numberOfWrites,
+                    AverageDelete = averageDelete / numberOfDeletes,
+                    AverageUpdate = averageUpdate / numberOfUpdates,
+                    AverageJoin = averageJoin / numberOfJoins
+                    
                 };
                 string jsonString = JsonSerializer.Serialize(jsonData);
-                string tempFile = Path.Combine("C:\\Users\\caspe\\Downloads", "data.json");
+                string tempFile = Path.Combine("C:\\Users\\Tiger\\Downloads", "data.json");
                 await File.WriteAllTextAsync(tempFile, jsonString);
             }
             else

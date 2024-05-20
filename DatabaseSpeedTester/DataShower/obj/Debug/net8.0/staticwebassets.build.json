@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "wWwGgHSWG8ctcepxIj/B7vPnb15LiyG2AdrgMvR/kYA=",
+  "Hash": "pSfXN/iTfahsOmOQzDr8Qgcfhkq8wJX9s1qjM2Xs41A=",
   "Source": "DataShower",
   "BasePath": "_content/DataShower",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "DataShower\\wwwroot",
       "Source": "DataShower",
-      "ContentRoot": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
       "BasePath": "_content/DataShower",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\bundle\\DataShower.styles.css",
+      "Identity": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\bundle\\DataShower.styles.css",
       "SourceId": "DataShower",
       "SourceType": "Computed",
-      "ContentRoot": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\bundle\\",
+      "ContentRoot": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\bundle\\",
       "BasePath": "_content/DataShower",
       "RelativePath": "DataShower.styles.css",
       "AssetKind": "All",
@@ -33,13 +33,13 @@
       "AssetTraitValue": "ApplicationBundle",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\bundle\\DataShower.styles.css"
+      "OriginalItemSpec": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\bundle\\DataShower.styles.css"
     },
     {
-      "Identity": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\DataShower.bundle.scp.css",
+      "Identity": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\DataShower.bundle.scp.css",
       "SourceId": "DataShower",
       "SourceType": "Computed",
-      "ContentRoot": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\",
+      "ContentRoot": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\",
       "BasePath": "_content/DataShower",
       "RelativePath": "DataShower.bundle.scp.css",
       "AssetKind": "All",
@@ -52,13 +52,13 @@
       "AssetTraitValue": "ProjectBundle",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\DataShower.bundle.scp.css"
+      "OriginalItemSpec": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\DataShower.bundle.scp.css"
     },
     {
-      "Identity": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\app.css",
+      "Identity": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\app.css",
       "SourceId": "DataShower",
       "SourceType": "Discovered",
-      "ContentRoot": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
       "BasePath": "_content/DataShower",
       "RelativePath": "app.css",
       "AssetKind": "All",
@@ -74,10 +74,10 @@
       "OriginalItemSpec": "wwwroot\\app.css"
     },
     {
-      "Identity": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "Identity": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\bootstrap\\bootstrap.min.css",
       "SourceId": "DataShower",
       "SourceType": "Discovered",
-      "ContentRoot": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
       "BasePath": "_content/DataShower",
       "RelativePath": "bootstrap/bootstrap.min.css",
       "AssetKind": "All",
@@ -93,10 +93,10 @@
       "OriginalItemSpec": "wwwroot\\bootstrap\\bootstrap.min.css"
     },
     {
-      "Identity": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "Identity": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\bootstrap\\bootstrap.min.css.map",
       "SourceId": "DataShower",
       "SourceType": "Discovered",
-      "ContentRoot": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
       "BasePath": "_content/DataShower",
       "RelativePath": "bootstrap/bootstrap.min.css.map",
       "AssetKind": "All",
@@ -112,10 +112,10 @@
       "OriginalItemSpec": "wwwroot\\bootstrap\\bootstrap.min.css.map"
     },
     {
-      "Identity": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\favicon.png",
+      "Identity": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\favicon.png",
       "SourceId": "DataShower",
       "SourceType": "Discovered",
-      "ContentRoot": "G:\\Github\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\Tiger\\OneDrive\\Documents\\GitHub\\DB_PB-Exam\\DatabaseSpeedTester\\DataShower\\wwwroot\\",
       "BasePath": "_content/DataShower",
       "RelativePath": "favicon.png",
       "AssetKind": "All",
