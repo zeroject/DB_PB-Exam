@@ -1,13 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Runner
+﻿namespace Runner
 {
     public class Runner
     {
@@ -57,14 +48,21 @@ namespace Runner
         private void SimulateUser(int operationsCount, int User)
         {
             Non_SargableQuery nonSargableQuery = new Non_SargableQuery(_dbContext);
+            SargableQuery sargableQuery = new SargableQuery(_dbContext);
 
             for (int i = 0; i < operationsCount; i++)
             {
-                nonSargableQuery.ReadData();
-                nonSargableQuery.WriteDataAsync();
-                nonSargableQuery.UpdateDataAsync();
-                nonSargableQuery.DeleteDataAsync();
-                nonSargableQuery.JoinTabels();
+                nonSargableQuery.GetAllFromSpecificStreet();
+                nonSargableQuery.GetOrderDetailsFromCustomer();
+                nonSargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
+                nonSargableQuery.UpdatePriceOfItem();
+                nonSargableQuery.DeleteLastInsertCustomer();
+
+                sargableQuery.GetAllFromSpecificStreet();
+                sargableQuery.GetOrderDetailsFromCustomer();
+                sargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
+                sargableQuery.UpdatePriceOfItem();
+                sargableQuery.DeleteLastInsertCustomer();
             }
         }
     }

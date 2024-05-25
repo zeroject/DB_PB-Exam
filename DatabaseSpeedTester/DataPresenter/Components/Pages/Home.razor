@@ -120,43 +120,45 @@
 
         Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
         float averageRead = 0;
+        float averageRead2 = 0;
         float averageWrite = 0;
         float averageDelete = 0;
         float averageUpdate = 0;
-        float averageJoin = 0;
         int numberOfReads = 0;
+        int numberOfReads2 = 0;
         int numberOfWrites = 0;
         int numberOfDeletes = 0;
         int numberOfUpdates = 0;
-        int numberOfJoins = 0;
 
         foreach (var key in totalTimes.Keys)
         {
-            if (key.Contains("Read")) 
+            if (key.Contains("GetAllFromSpecificStreet")) 
             {
                 averageRead += totalTimes[key];
                 numberOfReads++;
             }
-            if (key.Contains("Write"))
+            if (key.Contains("GetOrderDetailsFromCustomer"))
+            {
+                averageRead2 += totalTimes[key];
+                numberOfReads2++;
+            }
+            if (key.Contains("CreateNewCustomerWithOrderOfMilkAndBread"))
             {
                 averageWrite += totalTimes[key];
                 numberOfWrites++;
             }
-            if (key.Contains("Delete"))
-            {
-                averageDelete += totalTimes[key];
-                numberOfDeletes++;
-            }
-            if (key.Contains("Update"))
+            if (key.Contains("UpdatePriceOfItem"))
             {
                 averageUpdate += totalTimes[key];
                 numberOfUpdates++;
             }
-            if (key.Contains("Join"))
+            if (key.Contains("DeleteLastInsertCustomer"))
             {
-                averageJoin += totalTimes[key];
-                numberOfJoins++;
+                averageDelete += totalTimes[key];
+                numberOfDeletes++;
             }
+            
+            
         }
 
         // Serialize data to JSON
@@ -164,10 +166,10 @@
         {
             TotalTimes = totalTimes,
             AverageRead = averageRead / numberOfReads,
+            AverageRead2 = averageRead2 / numberOfReads2,
             AverageWrite = averageWrite / numberOfWrites,
             AverageDelete = averageDelete / numberOfDeletes,
-            AverageUpdate = averageUpdate / numberOfUpdates,
-            AverageJoin = averageJoin / numberOfJoins
+            AverageUpdate = averageUpdate / numberOfUpdates
             
         };
 
@@ -182,6 +184,70 @@
 
     public void ResolveSargableData()
     {
+        SargableQuery nonSargableQuery = new SargableQuery(dbContext);
+        ConcurrentDictionary<string, float> concurrentDic =  nonSargableQuery.GetTimes();
 
+        Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
+        float averageRead = 0;
+        float averageRead2 = 0;
+        float averageWrite = 0;
+        float averageDelete = 0;
+        float averageUpdate = 0;
+        int numberOfReads = 0;
+        int numberOfReads2 = 0;
+        int numberOfWrites = 0;
+        int numberOfDeletes = 0;
+        int numberOfUpdates = 0;
+
+        foreach (var key in totalTimes.Keys)
+        {
+            if (key.Contains("GetAllFromSpecificStreet")) 
+            {
+                averageRead += totalTimes[key];
+                numberOfReads++;
+            }
+            if (key.Contains("GetOrderDetailsFromCustomer"))
+            {
+                averageRead2 += totalTimes[key];
+                numberOfReads2++;
+            }
+            if (key.Contains("CreateNewCustomerWithOrderOfMilkAndBread"))
+            {
+                averageWrite += totalTimes[key];
+                numberOfWrites++;
+            }
+            if (key.Contains("UpdatePriceOfItem"))
+            {
+                averageUpdate += totalTimes[key];
+                numberOfUpdates++;
+            }
+            if (key.Contains("DeleteLastInsertCustomer"))
+            {
+                averageDelete += totalTimes[key];
+                numberOfDeletes++;
+            }
+            
+            
+        }
+
+        // Serialize data to JSON
+        var jsonData = new
+        {
+            TotalTimes = totalTimes,
+            AverageRead = averageRead / numberOfReads,
+            AverageRead2 = averageRead2 / numberOfReads2,
+            AverageWrite = averageWrite / numberOfWrites,
+            AverageDelete = averageDelete / numberOfDeletes,
+            AverageUpdate = averageUpdate / numberOfUpdates
+            
+        };
+
+        var jsonSerializerSettings = new JsonSerializerSettings
+        {
+            FloatParseHandling = FloatParseHandling.Decimal
+        };
+
+        string jsonString = JsonConvert.SerializeObject(jsonData, jsonSerializerSettings);
+        Console.WriteLine(jsonString);
     }
 }
