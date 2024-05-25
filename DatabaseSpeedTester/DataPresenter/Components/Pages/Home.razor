@@ -1,0 +1,187 @@
+﻿@page "/"
+@using System.Net
+@using System.Collections.Concurrent
+@using System.Text.Json
+@using Newtonsoft.Json
+@using Runner
+@using System.Text.Json.Serialization
+@rendermode InteractiveServer
+
+
+
+<PageTitle>Home</PageTitle>
+
+<h1>Database Tester</h1>
+
+<h3>Please fill out the folowing inputs:</h3>
+
+<input type="text" placeholder="Ipv4" @bind-value="Ip" @bind-value:event="oninput" />
+<input type="text" placeholder="Port" @bind-value="Port" @bind-value:event="oninput" />
+<input type="text" placeholder="Database" @bind-value="Database" @bind-value:event="oninput" />
+<input type="text" placeholder="Username" @bind-value="Username" @bind-value:event="oninput" />
+<input type="password" placeholder="Password" @bind-value="Password" @bind-value:event="oninput" />
+
+<button @onclick="Ok">Test Connection</button>
+
+@if (error != null)
+{
+    <h4 style="color: red;">@error</h4>
+}
+
+<br>
+
+@if (error == "Connection successful")
+{
+    <input type="text" placeholder="Nr of Users" @bind-value="Users" @bind-value:event="oninput" />
+    <input type="text" placeholder="Nr of Calls" @bind-value="Calls" @bind-value:event="oninput" />
+
+    <button @onclick="Simulate">Simulate</button>
+    <h4 style="color: red;">@error2</h4>
+}
+
+@code {
+    public string? Ip { get; set; } = "localhost";
+    public string? Port { get; set; } = "1433";
+    public string? Database { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
+    public string? error { get; set; }
+    public string? error2 { get; set; }
+    public int Users { get; set; }
+    public int Calls { get; set; }
+    public DbContext dbContext;
+
+    
+
+    public void Ok()
+    {
+        try
+        {
+            if (Ip != "localhost")
+                Ip = IPAddress.Parse(Ip).ToString();
+        }
+        catch (Exception)
+        {
+            error = "The ip is not valid";
+            StateHasChanged();
+        }
+        try
+        {
+            Port = int.Parse(Port).ToString();
+        }
+        catch (Exception)
+        {
+            if (Port != "")
+            {
+                error = "The port is not valid";
+                StateHasChanged();
+            }
+        }
+        if (!string.IsNullOrEmpty(Ip) && !string.IsNullOrEmpty(Port) && !string.IsNullOrEmpty(Database) && !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password))
+        {
+            TestConnection();
+        }else
+        {
+            error = "Please fill out all the inputs";
+        }
+    }
+
+    public void TestConnection()
+    {
+        error = "Trying to Connect...";
+        string connectionString = $"Server={Ip},{Port};Database={Database};User Id={Username};Password={Password};TrustServerCertificate=true;";
+        dbContext = new DbContext(connectionString);
+        bool success = dbContext.TestConnection();
+        if (success)
+        {
+            error = "Connection successful";
+        }
+        else
+        {
+            error = "Connection failed";
+        }
+    }
+
+    public async void Simulate()
+    {
+        Runner runner = new Runner(dbContext);
+        error2 = "Running simulation...";
+        await runner.DDOSAttack(Users, Calls);
+
+        ResolveNonSargableData();
+        ResolveSargableData();
+        error2 = "Simulation finished!";
+    }
+
+    public void ResolveNonSargableData()
+    {
+        Non_SargableQuery nonSargableQuery = new Non_SargableQuery(dbContext);
+        ConcurrentDictionary<string, float> concurrentDic =  nonSargableQuery.GetTimes();
+
+        Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
+        float averageRead = 0;
+        float averageWrite = 0;
+        float averageDelete = 0;
+        float averageUpdate = 0;
+        float averageJoin = 0;
+        int numberOfReads = 0;
+        int numberOfWrites = 0;
+        int numberOfDeletes = 0;
+        int numberOfUpdates = 0;
+        int numberOfJoins = 0;
+
+        foreach (var key in totalTimes.Keys)
+        {
+            if (key.Contains("Read")) 
+            {
+                averageRead += totalTimes[key];
+                numberOfReads++;
+            }
+            if (key.Contains("Write"))
+            {
+                averageWrite += totalTimes[key];
+                numberOfWrites++;
+            }
+            if (key.Contains("Delete"))
+            {
+                averageDelete += totalTimes[key];
+                numberOfDeletes++;
+            }
+            if (key.Contains("Update"))
+            {
+                averageUpdate += totalTimes[key];
+                numberOfUpdates++;
+            }
+            if (key.Contains("Join"))
+            {
+                averageJoin += totalTimes[key];
+                numberOfJoins++;
+            }
+        }
+
+        // Serialize data to JSON
+        var jsonData = new
+        {
+            TotalTimes = totalTimes,
+            AverageRead = averageRead / numberOfReads,
+            AverageWrite = averageWrite / numberOfWrites,
+            AverageDelete = averageDelete / numberOfDeletes,
+            AverageUpdate = averageUpdate / numberOfUpdates,
+            AverageJoin = averageJoin / numberOfJoins
+            
+        };
+
+        var jsonSerializerSettings = new JsonSerializerSettings
+        {
+            FloatParseHandling = FloatParseHandling.Decimal
+        };
+
+        string jsonString = JsonConvert.SerializeObject(jsonData, jsonSerializerSettings);
+        Console.WriteLine(jsonString);
+    }
+
+    public void ResolveSargableData()
+    {
+
+    }
+}
