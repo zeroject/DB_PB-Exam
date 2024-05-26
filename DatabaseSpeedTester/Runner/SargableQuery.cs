@@ -4,25 +4,24 @@ using System.Diagnostics;
 
 namespace Runner;
 
-public class SargableQuery
+public static class SargableQuery
 {
-    private readonly DbContext _dbContext;
-    private Random _random;
+    public static DbContext _dbContext;
+    private static readonly Random _random;
 
-    public ConcurrentDictionary<string, float> times = new ConcurrentDictionary<string, float>();
+    public static ConcurrentDictionary<string, float> times = new ConcurrentDictionary<string, float>();
 
-    public SargableQuery(DbContext dbContext)
+    static SargableQuery()
     {
-        _dbContext = dbContext;
         _random = new Random();
     }
 
-    public ConcurrentDictionary<string, float> GetTimes()
+    public static ConcurrentDictionary<string, float> GetTimes()
     {
         return times;
     }
 
-    public async Task GetAllFromSpecificStreet()
+    public static async Task GetAllFromSpecificStreet()
     {
         try
         {
@@ -48,7 +47,7 @@ public class SargableQuery
         }
     }
 
-    public async Task GetOrderDetailsFromCustomer()
+    public static async Task GetOrderDetailsFromCustomer()
     {
         try
         {
@@ -81,7 +80,7 @@ public class SargableQuery
         }
     }
 
-    public async Task CreateNewCustomerWithOrderOfMilkAndBread()
+    public static async Task CreateNewCustomerWithOrderOfMilkAndBread()
     {
         try
         {
@@ -133,7 +132,7 @@ public class SargableQuery
         }
     }
 
-    public async Task UpdatePriceOfItem()
+    public static async Task UpdatePriceOfItem()
     {
         try
         {
@@ -174,7 +173,7 @@ public class SargableQuery
         }
     }
 
-    public async Task DeleteLastInsertCustomer()
+    public static async Task DeleteLastInsertCustomer()
     {
         try
         {

@@ -39,6 +39,34 @@
     <h4 style="color: red;">@error2</h4>
 }
 
+@if (error2 == "Simulation finished!")
+{
+    <table>
+        <tr>
+            <th>Non-Sargable</th>
+            <th>Sargable</th>
+        </tr>
+        <tr>
+            <td>
+                <h3>Non-Sargable</h3>
+                <p>GetAllFromSpecificStreet: @AverageReadNS</p>
+                <p>GetOrderDetailsFromCustomer: @AverageRead2NS</p>
+                <p>CreateNewCustomerWithOrderOfMilkAndBread: @AverageWriteNS</p>
+                <p>UpdatePriceOfItem: @AverageUpdateNS</p>
+                <p>DeleteLastInsertCustomer: @AverageDeleteNS</p>
+            </td>
+            <td>
+                <h3>Sargable</h3>
+                <p>GetAllFromSpecificStreet: @AverageReadS</p>
+                <p>GetOrderDetailsFromCustomer: @AverageRead2S</p>
+                <p>CreateNewCustomerWithOrderOfMilkAndBread: @AverageWriteS</p>
+                <p>UpdatePriceOfItem: @AverageUpdateS</p>
+                <p>DeleteLastInsertCustomer: @AverageDeleteS</p>
+            </td>
+        </tr>
+    </table>
+}
+
 @code {
     public string? Ip { get; set; } = "localhost";
     public string? Port { get; set; } = "1433";
@@ -51,7 +79,19 @@
     public int Calls { get; set; }
     public DbContext dbContext;
 
-    
+    //Non-Sargable
+    public float AverageReadNS { get; set; }
+    public float AverageRead2NS { get; set; }
+    public float AverageWriteNS { get; set; }
+    public float AverageUpdateNS { get; set; }
+    public float AverageDeleteNS { get; set; }
+
+    //Sargable
+    public float AverageReadS { get; set; }
+    public float AverageRead2S { get; set; }
+    public float AverageWriteS { get; set; }
+    public float AverageUpdateS { get; set; }
+    public float AverageDeleteS { get; set; }
 
     public void Ok()
     {
@@ -115,20 +155,19 @@
 
     public void ResolveNonSargableData()
     {
-        Non_SargableQuery nonSargableQuery = new Non_SargableQuery(dbContext);
-        ConcurrentDictionary<string, float> concurrentDic =  nonSargableQuery.GetTimes();
+        ConcurrentDictionary<string, float> concurrentDic =  Non_SargableQuery.GetTimes();
 
         Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
         float averageRead = 0;
         float averageRead2 = 0;
         float averageWrite = 0;
-        float averageDelete = 0;
         float averageUpdate = 0;
+        float averageDelete = 0;
         int numberOfReads = 0;
         int numberOfReads2 = 0;
         int numberOfWrites = 0;
-        int numberOfDeletes = 0;
         int numberOfUpdates = 0;
+        int numberOfDeletes = 0;
 
         foreach (var key in totalTimes.Keys)
         {
@@ -168,36 +207,27 @@
             AverageRead = averageRead / numberOfReads,
             AverageRead2 = averageRead2 / numberOfReads2,
             AverageWrite = averageWrite / numberOfWrites,
+            AverageUpdate = averageUpdate / numberOfUpdates,
             AverageDelete = averageDelete / numberOfDeletes,
-            AverageUpdate = averageUpdate / numberOfUpdates
             
         };
-
-        var jsonSerializerSettings = new JsonSerializerSettings
-        {
-            FloatParseHandling = FloatParseHandling.Decimal
-        };
-
-        string jsonString = JsonConvert.SerializeObject(jsonData, jsonSerializerSettings);
-        Console.WriteLine(jsonString);
     }
 
     public void ResolveSargableData()
     {
-        SargableQuery nonSargableQuery = new SargableQuery(dbContext);
-        ConcurrentDictionary<string, float> concurrentDic =  nonSargableQuery.GetTimes();
+        ConcurrentDictionary<string, float> concurrentDic =  SargableQuery.GetTimes();
 
         Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
         float averageRead = 0;
         float averageRead2 = 0;
         float averageWrite = 0;
-        float averageDelete = 0;
         float averageUpdate = 0;
+        float averageDelete = 0;
         int numberOfReads = 0;
         int numberOfReads2 = 0;
         int numberOfWrites = 0;
-        int numberOfDeletes = 0;
         int numberOfUpdates = 0;
+        int numberOfDeletes = 0;
 
         foreach (var key in totalTimes.Keys)
         {
@@ -241,13 +271,5 @@
             AverageUpdate = averageUpdate / numberOfUpdates
             
         };
-
-        var jsonSerializerSettings = new JsonSerializerSettings
-        {
-            FloatParseHandling = FloatParseHandling.Decimal
-        };
-
-        string jsonString = JsonConvert.SerializeObject(jsonData, jsonSerializerSettings);
-        Console.WriteLine(jsonString);
     }
 }

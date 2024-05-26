@@ -4,25 +4,24 @@ using System.Diagnostics;
 
 namespace Runner;
 
-public class Non_SargableQuery
+public static class Non_SargableQuery
 {
-    private readonly DbContext _dbContext;
-    private Random _random;
+    public static DbContext _dbContext;
+    private static readonly Random _random;
 
-    public ConcurrentDictionary<string, float> times = new ConcurrentDictionary<string, float>();
+    public static ConcurrentDictionary<string, float> times = new ConcurrentDictionary<string, float>();
 
-    public Non_SargableQuery(DbContext dbContext)
+    static Non_SargableQuery()
     {
-        _dbContext = dbContext;
         _random = new Random();
     }
 
-    public ConcurrentDictionary<string, float> GetTimes()
+    public static ConcurrentDictionary<string, float> GetTimes()
     {
         return times;
     }
 
-    public async Task GetAllFromSpecificStreet()
+    public static async Task GetAllFromSpecificStreet()
     {
         try
         {
@@ -31,7 +30,7 @@ public class Non_SargableQuery
             using (var connection = new SqlConnection(_dbContext._connectionString))
             {
                 await connection.OpenAsync();
-                string sql = "SELECT * FROM Customers WHERE LOWER(Street) = LOWER('Fjerkræevej');";
+                string sql = "SELECT * FROM Customers WITH (ROWLOCK) WHERE LOWER(Street) = LOWER('Minegade');";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
@@ -48,7 +47,7 @@ public class Non_SargableQuery
         }
     }
 
-    public async Task GetOrderDetailsFromCustomer()
+    public static async Task GetOrderDetailsFromCustomer()
     {
         try
         {
@@ -59,10 +58,10 @@ public class Non_SargableQuery
                 await connection.OpenAsync();
                 string sql = @"
                     SELECT od.OrderId, i.ItemName, od.Quantity, i.ItemPrice
-                    FROM OrderDetails od
+                    FROM OrderDetails od WITH (ROWLOCK)
                     JOIN Items i ON od.ItemId = i.ItemId
                     WHERE od.OrderId IN (
-                        SELECT o.Id FROM Orders o WHERE o.CustomerId = 1 AND o.OrderDate >= DATEADD(day, -30, GETDATE())
+                    SELECT o.Id FROM Orders o WITH (ROWLOCK) WHERE o.CustomerId = 2 AND o.OrderDate >= DATEADD(day, -30, GETDATE())
                     );
                 ";
 
@@ -81,7 +80,7 @@ public class Non_SargableQuery
         }
     }
 
-    public async Task CreateNewCustomerWithOrderOfMilkAndBread()
+    public static async Task CreateNewCustomerWithOrderOfMilkAndBread()
     {
         try
         {
@@ -92,7 +91,7 @@ public class Non_SargableQuery
                 await connection.OpenAsync();
                 string sql = @"
                     -- Insert a new customer
-                    INSERT INTO Customers (FName, LName, City, Street) VALUES ('John', 'Doe', 'New York', '5th Avenue');
+                    INSERT INTO Customers (FName, LName, City, Street) VALUES ('Andrew', 'Doe', 'New York', '5th Avenue');
 
                     -- Get the ID of the new customer
                     DECLARE @newCustomerId INT = (SELECT MAX(Id) FROM Customers);
@@ -106,15 +105,15 @@ public class Non_SargableQuery
                     -- Insert order details for Milk and Bread
                     INSERT INTO OrderDetails (OrderId, ItemId, Quantity)
                     SELECT @newOrderId, ItemId, 1
-                    FROM Items
+                    FROM Items WITH (ROWLOCK)
                     WHERE LOWER(ItemName) IN ('Milk', 'Bread');
 
                     -- Update the order cost
                     UPDATE Orders SET OrderCost = (
-                        SELECT SUM(i.ItemPrice * od.Quantity)
-                        FROM OrderDetails od
-                        JOIN Items i ON od.ItemId = i.ItemId
-                        WHERE od.OrderId = @newOrderId
+                    SELECT SUM(i.ItemPrice * od.Quantity)
+                    FROM OrderDetails od WITH (ROWLOCK)
+                    JOIN Items i ON od.ItemId = i.ItemId
+                    WHERE od.OrderId = @newOrderId
                     ) WHERE Id = @newOrderId;
                 ";
 
@@ -133,7 +132,7 @@ public class Non_SargableQuery
         }
     }
 
-    public async Task UpdatePriceOfItem()
+    public static async Task UpdatePriceOfItem()
     {
         try
         {
@@ -144,18 +143,18 @@ public class Non_SargableQuery
                 await connection.OpenAsync();
                 string sql = @"
                     -- Update the price of an item
-                    UPDATE Items SET ItemPrice = 1.20 WHERE LOWER(ItemName) = 'Milk';
+                    UPDATE Items SET ItemPrice = 1.50 WHERE LOWER(ItemName) = 'Bread';
 
                     -- Update the order cost for all orders that contain the item
                     UPDATE Orders SET OrderCost = (
-                        SELECT SUM(i.ItemPrice * od.Quantity)
-                        FROM OrderDetails od
-                        JOIN Items i ON od.ItemId = i.ItemId
-                        WHERE od.OrderId = Orders.Id
+                    SELECT SUM(i.ItemPrice * od.Quantity)
+                    FROM OrderDetails od WITH (ROWLOCK)
+                    JOIN Items i ON od.ItemId = i.ItemId
+                    WHERE od.OrderId = Orders.Id
                     ) WHERE EXISTS (
-                        SELECT * FROM OrderDetails od WHERE od.OrderId = Orders.Id AND od.ItemId = (
-                            SELECT ItemId FROM Items WHERE LOWER(ItemName) = 'Milk'
-                        )
+                    SELECT * FROM OrderDetails od WITH (ROWLOCK) WHERE od.OrderId = Orders.Id AND od.ItemId = (
+                    SELECT ItemId FROM Items WITH (ROWLOCK) WHERE LOWER(ItemName) = 'Bread'
+                    )
                     );
                 ";
 
@@ -174,7 +173,7 @@ public class Non_SargableQuery
         }
     }
 
-    public async Task DeleteLastInsertCustomer()
+    public static async Task DeleteLastInsertCustomer()
     {
         try
         {
@@ -184,20 +183,20 @@ public class Non_SargableQuery
             {
                 await connection.OpenAsync();
                 string sql = @"
-                    -- Delete the order details of the customers with first name 'John'
-                    DELETE FROM OrderDetails WHERE OrderId IN (
-                        SELECT Id FROM Orders WHERE CustomerId IN (
-                            SELECT Id FROM Customers WHERE LOWER(FName) = 'john'
-                        )
+                    -- Delete the order details of the customers with first name 'Andrew'
+                    DELETE FROM OrderDetails WITH (ROWLOCK) WHERE OrderId IN (
+                    SELECT Id FROM Orders WITH (ROWLOCK) WHERE CustomerId IN (
+                    SELECT Id FROM Customers WITH (ROWLOCK) WHERE LOWER(FName) = 'Andrew'
+                    )
                     );
-
-                    -- Delete the orders of the customers with first name 'John'
-                    DELETE FROM Orders WHERE CustomerId IN (
-                        SELECT Id FROM Customers WHERE LOWER(FName) = 'john'
+                    
+                    -- Delete the orders of the customers with first name 'Andrew'
+                    DELETE FROM Orders WITH (ROWLOCK) WHERE CustomerId IN (
+                    SELECT Id FROM Customers WITH (ROWLOCK) WHERE LOWER(FName) = 'Andrew'
                     );
-
-                    -- Delete the customers with first name 'John'
-                    DELETE FROM Customers WHERE LOWER(FName) = 'john';
+                    
+                    -- Delete the customers with first name 'Andrew'
+                    DELETE FROM Customers WITH (ROWLOCK) WHERE LOWER(FName) = 'Andrew';
                 ";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))

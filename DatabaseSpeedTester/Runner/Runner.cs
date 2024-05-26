@@ -7,6 +7,8 @@
         public Runner(DbContext dbContext)
         {
             _dbContext = dbContext;
+            Non_SargableQuery._dbContext = dbContext;
+            SargableQuery._dbContext = dbContext;
         }
 
         public async Task DDOSAttack(int Users, int times)
@@ -16,7 +18,7 @@
             for (int i = 0; i < Users; i++)
             {
                 int userId = i; // Capture the loop variable
-                tasks.Add(RunOnThreadAsync(() => SimulateUser(times, userId)));
+                tasks.Add(RunOnThreadAsync(() => SimulateUser(times)));
             }
 
             await Task.WhenAll(tasks);
@@ -45,24 +47,24 @@
             await tcs.Task;
         }
 
-        private void SimulateUser(int operationsCount, int User)
+        private void SimulateUser(int operationsCount)
         {
-            Non_SargableQuery nonSargableQuery = new Non_SargableQuery(_dbContext);
-            SargableQuery sargableQuery = new SargableQuery(_dbContext);
+            
+            
 
             for (int i = 0; i < operationsCount; i++)
             {
-                nonSargableQuery.GetAllFromSpecificStreet();
-                nonSargableQuery.GetOrderDetailsFromCustomer();
-                nonSargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
-                nonSargableQuery.UpdatePriceOfItem();
-                nonSargableQuery.DeleteLastInsertCustomer();
-
-                sargableQuery.GetAllFromSpecificStreet();
-                sargableQuery.GetOrderDetailsFromCustomer();
-                sargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
-                sargableQuery.UpdatePriceOfItem();
-                sargableQuery.DeleteLastInsertCustomer();
+                Non_SargableQuery.GetAllFromSpecificStreet();
+                Non_SargableQuery.GetOrderDetailsFromCustomer();
+                Non_SargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
+                Non_SargableQuery.UpdatePriceOfItem();
+                Non_SargableQuery.DeleteLastInsertCustomer();
+                
+                SargableQuery.GetAllFromSpecificStreet();
+                SargableQuery.GetOrderDetailsFromCustomer();
+                SargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
+                SargableQuery.UpdatePriceOfItem();
+                SargableQuery.DeleteLastInsertCustomer();
             }
         }
     }
