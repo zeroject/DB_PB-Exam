@@ -28,7 +28,6 @@ public static class Queries
         try
         {
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             using (var connection = new SqlConnection(_dbContext._connectionString))
             {
                 await connection.OpenAsync();
@@ -36,10 +35,11 @@ public static class Queries
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    stopwatch.Start();
                     await command.ExecuteReaderAsync();
+                    stopwatch.Stop();
                 }
             }
-            stopwatch.Stop();
             times.TryAdd("GetAllFromSpecificStreetNonSargable" + _random.Next(), stopwatch.ElapsedMilliseconds);
         }
         catch (SqlException e)
@@ -54,7 +54,6 @@ public static class Queries
         try
         {
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             using (var connection = new SqlConnection(_dbContext._connectionString))
             {
                 await connection.OpenAsync();
@@ -73,10 +72,11 @@ public static class Queries
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    stopwatch.Start();
                     await command.ExecuteReaderAsync();
+                    stopwatch.Stop();
                 }
             }
-            stopwatch.Stop();
             times.TryAdd("GetOrderDetailsFromCustomerNonSargable" + _random.Next(), stopwatch.ElapsedMilliseconds);
         }
         catch (SqlException e)
@@ -93,7 +93,6 @@ public static class Queries
         try
         {
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             using (var connection = new SqlConnection(_dbContext._connectionString))
             {
                 await connection.OpenAsync();
@@ -101,10 +100,11 @@ public static class Queries
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    stopwatch.Start();
                     await command.ExecuteReaderAsync();
+                    stopwatch.Stop();
                 }
             }
-            stopwatch.Stop();
             times.TryAdd("GetAllFromSpecificStreet" + _random.Next(), stopwatch.ElapsedMilliseconds);
         }
         catch (SqlException e)
@@ -119,7 +119,6 @@ public static class Queries
         try
         {
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             using (var connection = new SqlConnection(_dbContext._connectionString))
             {
                 await connection.OpenAsync();
@@ -138,10 +137,11 @@ public static class Queries
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    stopwatch.Start();
                     await command.ExecuteReaderAsync();
+                    stopwatch.Stop();
                 }
             }
-            stopwatch.Stop();
             times.TryAdd("GetOrderDetailsFromCustomer" + _random.Next(), stopwatch.ElapsedMilliseconds);
         }
         catch (SqlException e)
@@ -156,7 +156,6 @@ public static class Queries
         try
         {
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             using (var connection = new SqlConnection(_dbContext._connectionString))
             {
                 await connection.OpenAsync();
@@ -164,10 +163,11 @@ public static class Queries
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    stopwatch.Start();
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    stopwatch.Stop();
                 }
             }
-            stopwatch.Stop();
             times.TryAdd("CreateNewCustomerWithOrderOfMilkAndBread" + _random.Next(), stopwatch.ElapsedMilliseconds);
         }
         catch (SqlException e)
@@ -182,7 +182,6 @@ public static class Queries
         try
         {
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             using (var connection = new SqlConnection(_dbContext._connectionString))
             {
                 await connection.OpenAsync();
@@ -190,10 +189,11 @@ public static class Queries
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    stopwatch.Start();
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    stopwatch.Stop();
                 }
             }
-            stopwatch.Stop();
             times.TryAdd("UpdatePriceOfItem" + _random.Next(), stopwatch.ElapsedMilliseconds);
         }
         catch (SqlException e)
@@ -208,7 +208,6 @@ public static class Queries
         try
         {
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             using (var connection = new SqlConnection(_dbContext._connectionString))
             {
                 await connection.OpenAsync();
@@ -216,10 +215,11 @@ public static class Queries
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    stopwatch.Start();
                     int rowsAffected = await command.ExecuteNonQueryAsync();
+                    stopwatch.Stop();
                 }
             }
-            stopwatch.Stop();
             times.TryAdd("DeleteLastInsertCustomer" + _random.Next(), stopwatch.ElapsedMilliseconds);
         }
         catch (SqlException e)

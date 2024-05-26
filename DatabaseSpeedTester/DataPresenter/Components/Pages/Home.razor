@@ -24,6 +24,7 @@
 
 <button @onclick="Ok">Test Connection</button>
 
+
 @if (error != null)
 {
     <h4 style="color: red;">@error</h4>
@@ -77,24 +78,68 @@
             </td>
         </tr>
     </table>
+}
 
-    <canvas id="lineChart" width="400" height="400"></canvas>
-    <script>
-        var labels = @labels;
-        var allReads = @allReads;
+<canvas id="lineChart" width="300" height="100"></canvas>
 
+<script>
+    window.createChart = (streetRead, allLabels, allWrites, allUpdates, allDeletes, streetReadNon, custRead, custReadNon) => {
         var ctx = document.getElementById('lineChart').getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
-                datasets: [{
-                    label: 'My First Dataset',
-                    data: allReads,
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
+                labels: allLabels,
+                datasets: [
+                    {
+                        label: 'Street Read',
+                        data: streetRead,
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Street Non Read',
+                        data: streetReadNon,
+                        fill: false,
+                        borderColor: 'rgb(25, 202, 102)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Customer Read',
+                        data: custRead,
+                        fill: false,
+                        borderColor: 'rgb(120, 120, 192)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Customer Non Read',
+                        data: custReadNon,
+                        fill: false,
+                        borderColor: 'rgb(205, 0, 192)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Writes',
+                        data: allWrites,
+                        fill: false,
+                        borderColor: 'rgb(50, 100, 255)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Updates',
+                        data: allUpdates,
+                        fill: false,
+                        borderColor: 'rgb(170, 50, 170)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Deletes',
+                        data: allDeletes,
+                        fill: false,
+                        borderColor: 'rgb(255, 50, 50)',
+                        tension: 0.1
+                    }
+                ]
             },
             options: {
                 scales: {
@@ -104,8 +149,10 @@
                 }
             }
         });
-    </script>
-}
+    };
+</script>
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
 @code {
     public string? Ip { get; set; } = "localhost";
@@ -130,10 +177,14 @@
     public float AverageUpdateS { get; set; }
     public float AverageDeleteS { get; set; }
 
-    public List<float> allReads { get; set; } = new List<float>();
+    public List<float> streetRead { get; set; } = new List<float>();
+    public List<float> streetReadNon { get; set; } = new List<float>();
+    public List<float> custRead { get; set; } = new List<float>();
+    public List<float> custReadNon { get; set; } = new List<float>();
+    public List<float> allWrites { get; set; } = new List<float>();
+    public List<float> allUpdate { get; set; } = new List<float>();
+    public List<float> allDelete { get; set; } = new List<float>();
     public List<string> labels { get; set; } = new List<string>();
-    public string jsonReads { get; set; }
-    public string jsonLabels { get; set; }
 
     public void Ok()
     {
@@ -220,45 +271,51 @@
         {
             if (key.Contains("GetAllFromSpecificStreet")) 
             {
-                allReads.Add(totalTimes[key]);
+                streetRead.Add(totalTimes[key]);
                 labels.Add(key);
                 averageRead1 += totalTimes[key];
                 numberOfReads1++;
             }
             if (key.Contains("GetAllFromSpecificStreetNonSargable")) 
             {
+                streetReadNon.Add(totalTimes[key]);
                 averageRead1NonS += totalTimes[key];
                 numberOfReads1NonS++;
             }
             if (key.Contains("GetOrderDetailsFromCustomer"))
             {
+                custRead.Add(totalTimes[key]);
                 averageRead2 += totalTimes[key];
                 numberOfReads2++;
             }
             if (key.Contains("GetOrderDetailsFromCustomerNonSargable"))
             {
+                custReadNon.Add(totalTimes[key]);
                 averageRead2NonS += totalTimes[key];
                 numberOfReads2NonS++;
             }
             if (key.Contains("CreateNewCustomerWithOrderOfMilkAndBread"))
             {
+                allWrites.Add(totalTimes[key]);
                 averageWrite += totalTimes[key];
                 numberOfWrites++;
             }
             if (key.Contains("UpdatePriceOfItem"))
             {
+                allUpdate.Add(totalTimes[key]);
                 averageUpdate += totalTimes[key];
                 numberOfUpdates++;
             }
             if (key.Contains("DeleteLastInsertCustomer"))
             {
+                allDelete.Add(totalTimes[key]);
                 averageDelete += totalTimes[key];
                 numberOfDeletes++;
             }
-            
-            
+
+
         }
-        
+
         AverageRead1S = averageRead1 / numberOfReads1;
         AverageRead1NS = averageRead1NonS / numberOfReads1NonS;
         AverageRead2S = averageRead2 / numberOfReads2;
@@ -266,8 +323,6 @@
         AverageWriteS = averageWrite / numberOfWrites;
         AverageUpdateS = averageUpdate / numberOfUpdates;
         AverageDeleteS = averageDelete / numberOfDeletes;
-        jsonLabels = JsonConvert.SerializeObject(labels);
-        jsonReads = JsonConvert.SerializeObject(allReads);
-        StateHasChanged();
+        JSRuntime.InvokeVoidAsync("createChart", streetRead.TakeLast(100), labels.TakeLast(100), allWrites.TakeLast(100), allUpdate.TakeLast(100), allDelete.TakeLast(100), streetReadNon.TakeLast(100), custRead.TakeLast(100), custReadNon.TakeLast(100));
     }
 }
