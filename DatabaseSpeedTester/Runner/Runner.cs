@@ -56,15 +56,15 @@
             {
                 Non_SargableQuery.GetAllFromSpecificStreet();
                 Non_SargableQuery.GetOrderDetailsFromCustomer();
-                Non_SargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
+                //Non_SargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
                 Non_SargableQuery.UpdatePriceOfItem();
-                Non_SargableQuery.DeleteLastInsertCustomer();
+                //Non_SargableQuery.DeleteLastInsertCustomer();
                 
                 SargableQuery.GetAllFromSpecificStreet();
                 SargableQuery.GetOrderDetailsFromCustomer();
-                SargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
-                SargableQuery.UpdatePriceOfItem();
-                SargableQuery.DeleteLastInsertCustomer();
+                //SargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
+                //SargableQuery.UpdatePriceOfItem();
+                //SargableQuery.DeleteLastInsertCustomer();
             }
         }
     }

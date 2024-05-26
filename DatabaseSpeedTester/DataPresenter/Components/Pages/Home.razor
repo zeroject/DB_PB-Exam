@@ -32,6 +32,7 @@
 
 @if (error == "Connection successful")
 {
+    <p>Users / Calls</p>
     <input type="text" placeholder="Nr of Users" @bind-value="Users" @bind-value:event="oninput" />
     <input type="text" placeholder="Nr of Calls" @bind-value="Calls" @bind-value:event="oninput" />
 
@@ -44,24 +45,41 @@
     <table>
         <tr>
             <th>Non-Sargable</th>
+            <th></th>
+            <th></th>
             <th>Sargable</th>
         </tr>
         <tr>
             <td>
-                <h3>Non-Sargable</h3>
-                <p>GetAllFromSpecificStreet: @AverageReadNS</p>
-                <p>GetOrderDetailsFromCustomer: @AverageRead2NS</p>
-                <p>CreateNewCustomerWithOrderOfMilkAndBread: @AverageWriteNS</p>
-                <p>UpdatePriceOfItem: @AverageUpdateNS</p>
-                <p>DeleteLastInsertCustomer: @AverageDeleteNS</p>
+                <p>GetAllFromSpecificStreet: </p>
+                <p>GetOrderDetailsFromCustomer: </p>
+                <p>CreateNewCustomerWithOrderOfMilkAndBread: </p>
+                <p>UpdatePriceOfItem: </p>
+                <p>DeleteLastInsertCustomer: </p>
             </td>
             <td>
-                <h3>Sargable</h3>
-                <p>GetAllFromSpecificStreet: @AverageReadS</p>
-                <p>GetOrderDetailsFromCustomer: @AverageRead2S</p>
-                <p>CreateNewCustomerWithOrderOfMilkAndBread: @AverageWriteS</p>
-                <p>UpdatePriceOfItem: @AverageUpdateS</p>
-                <p>DeleteLastInsertCustomer: @AverageDeleteS</p>
+                <p>@AverageReadNS</p>
+                <p>@AverageRead2NS</p>
+                <p>@AverageWriteNS</p>
+                <p>@AverageUpdateNS</p>
+                <p>@AverageDeleteNS</p>
+            </td>
+            <td>
+
+            </td>
+            <td>
+                <p>GetAllFromSpecificStreet: </p>
+                <p>GetOrderDetailsFromCustomer: </p>
+                <p>CreateNewCustomerWithOrderOfMilkAndBread: </p>
+                <p>UpdatePriceOfItem: </p>
+                <p>DeleteLastInsertCustomer: </p>
+            </td>
+            <td>
+                <p>@AverageReadS</p>
+                <p>@AverageRead2S</p>
+                <p>@AverageWriteS</p>
+                <p>@AverageUpdateS</p>
+                <p>@AverageDeleteS</p>
             </td>
         </tr>
     </table>
@@ -70,9 +88,9 @@
 @code {
     public string? Ip { get; set; } = "localhost";
     public string? Port { get; set; } = "1433";
-    public string? Database { get; set; }
-    public string? Username { get; set; }
-    public string? Password { get; set; }
+    public string? Database { get; set; } = "DBTester";
+    public string? Username { get; set; } = "sa";
+    public string? Password { get; set; } = "SuperSecret7!";
     public string? error { get; set; }
     public string? error2 { get; set; }
     public int Users { get; set; }
@@ -151,6 +169,7 @@
         ResolveNonSargableData();
         ResolveSargableData();
         error2 = "Simulation finished!";
+        StateHasChanged();
     }
 
     public void ResolveNonSargableData()
@@ -199,18 +218,14 @@
             
             
         }
-
-        // Serialize data to JSON
-        var jsonData = new
-        {
-            TotalTimes = totalTimes,
-            AverageRead = averageRead / numberOfReads,
-            AverageRead2 = averageRead2 / numberOfReads2,
-            AverageWrite = averageWrite / numberOfWrites,
-            AverageUpdate = averageUpdate / numberOfUpdates,
-            AverageDelete = averageDelete / numberOfDeletes,
+        
+        AverageReadNS = averageRead / numberOfReads;
+        AverageRead2NS = averageRead2 / numberOfReads2;
+        AverageWriteNS = averageWrite / numberOfWrites;
+        AverageUpdateNS = averageUpdate / numberOfUpdates;
+        AverageDeleteNS = averageDelete / numberOfDeletes;
             
-        };
+        
     }
 
     public void ResolveSargableData()
@@ -260,16 +275,11 @@
             
         }
 
-        // Serialize data to JSON
-        var jsonData = new
-        {
-            TotalTimes = totalTimes,
-            AverageRead = averageRead / numberOfReads,
-            AverageRead2 = averageRead2 / numberOfReads2,
-            AverageWrite = averageWrite / numberOfWrites,
-            AverageDelete = averageDelete / numberOfDeletes,
-            AverageUpdate = averageUpdate / numberOfUpdates
+        AverageReadS = averageRead / numberOfReads;
+        AverageRead2S = averageRead2 / numberOfReads2;
+        AverageWriteS = averageWrite / numberOfWrites;
+        AverageUpdateS = averageUpdate / numberOfUpdates;
+        AverageDeleteS = averageDelete / numberOfDeletes;
             
-        };
     }
 }
