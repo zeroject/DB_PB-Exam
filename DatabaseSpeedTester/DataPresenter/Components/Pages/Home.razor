@@ -45,41 +45,34 @@
     <table>
         <tr>
             <th>Non-Sargable</th>
-            <th></th>
-            <th></th>
-            <th>Sargable</th>
         </tr>
         <tr>
             <td>
-                <p>GetAllFromSpecificStreet: </p>
-                <p>GetOrderDetailsFromCustomer: </p>
-                <p>CreateNewCustomerWithOrderOfMilkAndBread: </p>
-                <p>UpdatePriceOfItem: </p>
-                <p>DeleteLastInsertCustomer: </p>
+                <p>GetAllFromSpecificStreet: &nbsp;</p>
+                <p>GetAllFromSpecificStreet (NonSargable): &nbsp;</p>
+                <p>GetOrderDetailsFromCustomer: &nbsp;</p>
+                <p>GetOrderDetailsFromCustomer (NonSargable): &nbsp;</p>
+                <p>CreateNewCustomerWithOrderOfMilkAndBread: &nbsp;</p>
+                <p>UpdatePriceOfItem: &nbsp;</p>
+                <p>DeleteLastInsertCustomer: &nbsp;</p>
             </td>
             <td>
-                <p>@AverageReadNS</p>
-                <p>@AverageRead2NS</p>
-                <p>@AverageWriteNS</p>
-                <p>@AverageUpdateNS</p>
-                <p>@AverageDeleteNS</p>
+                <p>@AverageRead1S &nbsp;</p>
+                <p>@AverageRead1NS &nbsp;</p>
+                <p>@AverageRead2S &nbsp;</p>
+                <p>@AverageRead2NS &nbsp;</p>
+                <p>@AverageWriteS &nbsp;</p>
+                <p>@AverageUpdateS &nbsp;</p>
+                <p>@AverageDeleteS &nbsp;</p>
             </td>
             <td>
-
-            </td>
-            <td>
-                <p>GetAllFromSpecificStreet: </p>
-                <p>GetOrderDetailsFromCustomer: </p>
-                <p>CreateNewCustomerWithOrderOfMilkAndBread: </p>
-                <p>UpdatePriceOfItem: </p>
-                <p>DeleteLastInsertCustomer: </p>
-            </td>
-            <td>
-                <p>@AverageReadS</p>
-                <p>@AverageRead2S</p>
-                <p>@AverageWriteS</p>
-                <p>@AverageUpdateS</p>
-                <p>@AverageDeleteS</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
             </td>
         </tr>
     </table>
@@ -98,14 +91,11 @@
     public DbContext dbContext;
 
     //Non-Sargable
-    public float AverageReadNS { get; set; }
+    public float AverageRead1NS { get; set; }
     public float AverageRead2NS { get; set; }
-    public float AverageWriteNS { get; set; }
-    public float AverageUpdateNS { get; set; }
-    public float AverageDeleteNS { get; set; }
 
     //Sargable
-    public float AverageReadS { get; set; }
+    public float AverageRead1S { get; set; }
     public float AverageRead2S { get; set; }
     public float AverageWriteS { get; set; }
     public float AverageUpdateS { get; set; }
@@ -164,26 +154,30 @@
     {
         Runner runner = new Runner(dbContext);
         error2 = "Running simulation...";
+        StateHasChanged();
         await runner.DDOSAttack(Users, Calls);
 
-        ResolveNonSargableData();
-        ResolveSargableData();
+        ResolveData();
         error2 = "Simulation finished!";
         StateHasChanged();
     }
 
-    public void ResolveNonSargableData()
+    public void ResolveData()
     {
-        ConcurrentDictionary<string, float> concurrentDic =  Non_SargableQuery.GetTimes();
+        ConcurrentDictionary<string, float> concurrentDic =  Queries.GetTimes();
 
         Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
-        float averageRead = 0;
+        float averageRead1 = 0;
+        float averageRead1NonS = 0;
         float averageRead2 = 0;
+        float averageRead2NonS = 0;
         float averageWrite = 0;
         float averageUpdate = 0;
         float averageDelete = 0;
-        int numberOfReads = 0;
+        int numberOfReads1 = 0;
+        int numberOfReads1NonS = 0;
         int numberOfReads2 = 0;
+        int numberOfReads2NonS = 0;
         int numberOfWrites = 0;
         int numberOfUpdates = 0;
         int numberOfDeletes = 0;
@@ -192,13 +186,23 @@
         {
             if (key.Contains("GetAllFromSpecificStreet")) 
             {
-                averageRead += totalTimes[key];
-                numberOfReads++;
+                averageRead1 += totalTimes[key];
+                numberOfReads1++;
+            }
+            if (key.Contains("GetAllFromSpecificStreetNonSargable")) 
+            {
+                averageRead1NonS += totalTimes[key];
+                numberOfReads1NonS++;
             }
             if (key.Contains("GetOrderDetailsFromCustomer"))
             {
                 averageRead2 += totalTimes[key];
                 numberOfReads2++;
+            }
+            if (key.Contains("GetOrderDetailsFromCustomerNonSargable"))
+            {
+                averageRead2NonS += totalTimes[key];
+                numberOfReads2NonS++;
             }
             if (key.Contains("CreateNewCustomerWithOrderOfMilkAndBread"))
             {
@@ -219,67 +223,14 @@
             
         }
         
-        AverageReadNS = averageRead / numberOfReads;
-        AverageRead2NS = averageRead2 / numberOfReads2;
-        AverageWriteNS = averageWrite / numberOfWrites;
-        AverageUpdateNS = averageUpdate / numberOfUpdates;
-        AverageDeleteNS = averageDelete / numberOfDeletes;
-            
-        
-    }
-
-    public void ResolveSargableData()
-    {
-        ConcurrentDictionary<string, float> concurrentDic =  SargableQuery.GetTimes();
-
-        Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
-        float averageRead = 0;
-        float averageRead2 = 0;
-        float averageWrite = 0;
-        float averageUpdate = 0;
-        float averageDelete = 0;
-        int numberOfReads = 0;
-        int numberOfReads2 = 0;
-        int numberOfWrites = 0;
-        int numberOfUpdates = 0;
-        int numberOfDeletes = 0;
-
-        foreach (var key in totalTimes.Keys)
-        {
-            if (key.Contains("GetAllFromSpecificStreet")) 
-            {
-                averageRead += totalTimes[key];
-                numberOfReads++;
-            }
-            if (key.Contains("GetOrderDetailsFromCustomer"))
-            {
-                averageRead2 += totalTimes[key];
-                numberOfReads2++;
-            }
-            if (key.Contains("CreateNewCustomerWithOrderOfMilkAndBread"))
-            {
-                averageWrite += totalTimes[key];
-                numberOfWrites++;
-            }
-            if (key.Contains("UpdatePriceOfItem"))
-            {
-                averageUpdate += totalTimes[key];
-                numberOfUpdates++;
-            }
-            if (key.Contains("DeleteLastInsertCustomer"))
-            {
-                averageDelete += totalTimes[key];
-                numberOfDeletes++;
-            }
-            
-            
-        }
-
-        AverageReadS = averageRead / numberOfReads;
+        AverageRead1S = averageRead1 / numberOfReads1;
+        AverageRead1NS = averageRead1NonS / numberOfReads1NonS;
         AverageRead2S = averageRead2 / numberOfReads2;
+        AverageRead2NS = averageRead2NonS / numberOfReads2NonS;
         AverageWriteS = averageWrite / numberOfWrites;
         AverageUpdateS = averageUpdate / numberOfUpdates;
         AverageDeleteS = averageDelete / numberOfDeletes;
             
+        
     }
 }

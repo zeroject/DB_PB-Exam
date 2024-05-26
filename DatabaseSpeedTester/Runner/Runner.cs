@@ -7,8 +7,7 @@
         public Runner(DbContext dbContext)
         {
             _dbContext = dbContext;
-            Non_SargableQuery._dbContext = dbContext;
-            SargableQuery._dbContext = dbContext;
+            Queries._dbContext = dbContext;
         }
 
         public async Task DDOSAttack(int Users, int times)
@@ -53,18 +52,14 @@
             
 
             for (int i = 0; i < operationsCount; i++)
-            {
-                Non_SargableQuery.GetAllFromSpecificStreet();
-                Non_SargableQuery.GetOrderDetailsFromCustomer();
-                //Non_SargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
-                Non_SargableQuery.UpdatePriceOfItem();
-                //Non_SargableQuery.DeleteLastInsertCustomer();
-                
-                SargableQuery.GetAllFromSpecificStreet();
-                SargableQuery.GetOrderDetailsFromCustomer();
-                //SargableQuery.CreateNewCustomerWithOrderOfMilkAndBread();
-                //SargableQuery.UpdatePriceOfItem();
-                //SargableQuery.DeleteLastInsertCustomer();
+            {   
+                Queries.GetAllFromSpecificStreet();
+                Queries.GetAllFromSpecificStreetNonSargable();
+                Queries.GetOrderDetailsFromCustomer();
+                Queries.GetOrderDetailsFromCustomerNonSargable();
+                Queries.CreateNewCustomerWithOrderOfMilkAndBread();
+                Queries.UpdatePriceOfItem();
+                Queries.DeleteLastInsertCustomer();
             }
         }
     }
