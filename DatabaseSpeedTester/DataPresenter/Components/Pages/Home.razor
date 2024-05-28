@@ -1,0 +1,328 @@
+﻿@page "/"
+@using System.Net
+@using System.Collections.Concurrent
+@using System.Text.Json
+@using Newtonsoft.Json
+@using Runner
+@using System.Text.Json.Serialization
+@using Microsoft.AspNetCore.Html
+@rendermode InteractiveServer
+
+
+
+<PageTitle>Home</PageTitle>
+
+<h1>Database Tester</h1>
+
+<h3>Please fill out the folowing inputs:</h3>
+
+<input type="text" placeholder="Ipv4" @bind-value="Ip" @bind-value:event="oninput" />
+<input type="text" placeholder="Port" @bind-value="Port" @bind-value:event="oninput" />
+<input type="text" placeholder="Database" @bind-value="Database" @bind-value:event="oninput" />
+<input type="text" placeholder="Username" @bind-value="Username" @bind-value:event="oninput" />
+<input type="password" placeholder="Password" @bind-value="Password" @bind-value:event="oninput" />
+
+<button @onclick="Ok">Test Connection</button>
+
+
+@if (error != null)
+{
+    <h4 style="color: red;">@error</h4>
+}
+
+<br>
+
+@if (error == "Connection successful")
+{
+    <p>Users / Calls</p>
+    <input type="text" placeholder="Nr of Users" @bind-value="Users" @bind-value:event="oninput" />
+    <input type="text" placeholder="Nr of Calls" @bind-value="Calls" @bind-value:event="oninput" />
+
+    <button @onclick="Simulate">Simulate</button>
+    <h4 style="color: red;">@error2</h4>
+}
+
+@if (error2 == "Simulation finished!")
+{
+    <table>
+        <tr>
+            <th>Results</th>
+        </tr>
+        <tr>
+            <td>
+                <p>GetAllFromSpecificStreet: &nbsp;</p>
+                <p>GetAllFromSpecificStreet (NonSargable): &nbsp;</p>
+                <p>GetOrderDetailsFromCustomer: &nbsp;</p>
+                <p>GetOrderDetailsFromCustomer (NonSargable): &nbsp;</p>
+                <p>CreateNewCustomerWithOrderOfMilkAndBread: &nbsp;</p>
+                <p>UpdatePriceOfItem: &nbsp;</p>
+                <p>DeleteLastInsertCustomer: &nbsp;</p>
+            </td>
+            <td>
+                <p>@AverageRead1S &nbsp;</p>
+                <p>@AverageRead1NS &nbsp;</p>
+                <p>@AverageRead2S &nbsp;</p>
+                <p>@AverageRead2NS &nbsp;</p>
+                <p>@AverageWriteS &nbsp;</p>
+                <p>@AverageUpdateS &nbsp;</p>
+                <p>@AverageDeleteS &nbsp;</p>
+            </td>
+            <td>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+                <p>ms</p>
+            </td>
+        </tr>
+    </table>
+}
+
+<canvas id="lineChart" width="300" height="100"></canvas>
+
+<script>
+    window.createChart = (streetRead, allLabels, allWrites, allUpdates, allDeletes, streetReadNon, custRead, custReadNon) => {
+        var ctx = document.getElementById('lineChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: allLabels,
+                datasets: [
+                    {
+                        label: 'Street Read',
+                        data: streetRead,
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Street Non Read',
+                        data: streetReadNon,
+                        fill: false,
+                        borderColor: 'rgb(25, 202, 102)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Customer Read',
+                        data: custRead,
+                        fill: false,
+                        borderColor: 'rgb(120, 120, 192)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Customer Non Read',
+                        data: custReadNon,
+                        fill: false,
+                        borderColor: 'rgb(205, 0, 192)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Writes',
+                        data: allWrites,
+                        fill: false,
+                        borderColor: 'rgb(50, 100, 255)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Updates',
+                        data: allUpdates,
+                        fill: false,
+                        borderColor: 'rgb(170, 50, 170)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Deletes',
+                        data: allDeletes,
+                        fill: false,
+                        borderColor: 'rgb(255, 50, 50)',
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    };
+</script>
+
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+@code {
+    public string? Ip { get; set; } = "localhost";
+    public string? Port { get; set; } = "1433";
+    public string? Database { get; set; } = "DBTester";
+    public string? Username { get; set; } = "sa";
+    public string? Password { get; set; } = "SuperSecret7!";
+    public string? error { get; set; }
+    public string? error2 { get; set; }
+    public int Users { get; set; }
+    public int Calls { get; set; }
+    public DbContext dbContext;
+
+    //Non-Sargable
+    public float AverageRead1NS { get; set; }
+    public float AverageRead2NS { get; set; }
+
+    //Sargable
+    public float AverageRead1S { get; set; }
+    public float AverageRead2S { get; set; }
+    public float AverageWriteS { get; set; }
+    public float AverageUpdateS { get; set; }
+    public float AverageDeleteS { get; set; }
+
+    public List<float> streetRead { get; set; } = new List<float>();
+    public List<float> streetReadNon { get; set; } = new List<float>();
+    public List<float> custRead { get; set; } = new List<float>();
+    public List<float> custReadNon { get; set; } = new List<float>();
+    public List<float> allWrites { get; set; } = new List<float>();
+    public List<float> allUpdate { get; set; } = new List<float>();
+    public List<float> allDelete { get; set; } = new List<float>();
+    public List<string> labels { get; set; } = new List<string>();
+
+    public void Ok()
+    {
+        try
+        {
+            if (Ip != "localhost")
+                Ip = IPAddress.Parse(Ip).ToString();
+        }
+        catch (Exception)
+        {
+            error = "The ip is not valid";
+            StateHasChanged();
+        }
+        try
+        {
+            Port = int.Parse(Port).ToString();
+        }
+        catch (Exception)
+        {
+            if (Port != "")
+            {
+                error = "The port is not valid";
+                StateHasChanged();
+            }
+        }
+        if (!string.IsNullOrEmpty(Ip) && !string.IsNullOrEmpty(Port) && !string.IsNullOrEmpty(Database) && !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password))
+        {
+            TestConnection();
+        }else
+        {
+            error = "Please fill out all the inputs";
+        }
+    }
+
+    public void TestConnection()
+    {
+        error = "Trying to Connect...";
+        string connectionString = $"Server={Ip},{Port};Database={Database};User Id={Username};Password={Password};TrustServerCertificate=true;";
+        dbContext = new DbContext(connectionString);
+        bool success = dbContext.TestConnection();
+        if (success)
+        {
+            error = "Connection successful";
+        }
+        else
+        {
+            error = "Connection failed";
+        }
+    }
+
+    public async void Simulate()
+    {
+        Runner runner = new Runner(dbContext);
+        error2 = "Running simulation...";
+        StateHasChanged();
+        await runner.DDOSAttack(Users, Calls);
+
+        ResolveData();
+        error2 = "Simulation finished!";
+        StateHasChanged();
+    }
+
+    public void ResolveData()
+    {
+        ConcurrentDictionary<string, float> concurrentDic =  Queries.GetTimes();
+
+        Dictionary<string, float> totalTimes = concurrentDic.ToDictionary(p => p.Key, p => p.Value);
+        float averageRead1 = 0;
+        float averageRead1NonS = 0;
+        float averageRead2 = 0;
+        float averageRead2NonS = 0;
+        float averageWrite = 0;
+        float averageUpdate = 0;
+        float averageDelete = 0;
+        int numberOfReads1 = 0;
+        int numberOfReads1NonS = 0;
+        int numberOfReads2 = 0;
+        int numberOfReads2NonS = 0;
+        int numberOfWrites = 0;
+        int numberOfUpdates = 0;
+        int numberOfDeletes = 0;
+
+        foreach (var key in totalTimes.Keys)
+        {
+            if (key.Contains("GetAllFromSpecificStreet")) 
+            {
+                streetRead.Add(totalTimes[key]);
+                labels.Add(key);
+                averageRead1 += totalTimes[key];
+                numberOfReads1++;
+            }
+            if (key.Contains("GetAllFromSpecificStreetNonSargable")) 
+            {
+                streetReadNon.Add(totalTimes[key]);
+                averageRead1NonS += totalTimes[key];
+                numberOfReads1NonS++;
+            }
+            if (key.Contains("GetOrderDetailsFromCustomer"))
+            {
+                custRead.Add(totalTimes[key]);
+                averageRead2 += totalTimes[key];
+                numberOfReads2++;
+            }
+            if (key.Contains("GetOrderDetailsFromCustomerNonSargable"))
+            {
+                custReadNon.Add(totalTimes[key]);
+                averageRead2NonS += totalTimes[key];
+                numberOfReads2NonS++;
+            }
+            if (key.Contains("CreateNewCustomerWithOrderOfMilkAndBread"))
+            {
+                allWrites.Add(totalTimes[key]);
+                averageWrite += totalTimes[key];
+                numberOfWrites++;
+            }
+            if (key.Contains("UpdatePriceOfItem"))
+            {
+                allUpdate.Add(totalTimes[key]);
+                averageUpdate += totalTimes[key];
+                numberOfUpdates++;
+            }
+            if (key.Contains("DeleteLastInsertCustomer"))
+            {
+                allDelete.Add(totalTimes[key]);
+                averageDelete += totalTimes[key];
+                numberOfDeletes++;
+            }
+
+
+        }
+
+        AverageRead1S = averageRead1 / numberOfReads1;
+        AverageRead1NS = averageRead1NonS / numberOfReads1NonS;
+        AverageRead2S = averageRead2 / numberOfReads2;
+        AverageRead2NS = averageRead2NonS / numberOfReads2NonS;
+        AverageWriteS = averageWrite / numberOfWrites;
+        AverageUpdateS = averageUpdate / numberOfUpdates;
+        AverageDeleteS = averageDelete / numberOfDeletes;
+        JSRuntime.InvokeVoidAsync("createChart", streetRead.TakeLast(100), labels.TakeLast(100), allWrites.TakeLast(100), allUpdate.TakeLast(100), allDelete.TakeLast(100), streetReadNon.TakeLast(100), custRead.TakeLast(100), custReadNon.TakeLast(100));
+    }
+}
